@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="logo.png" type="image/png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Goals</title>
+
+<style>
+  body { 
+      font-family: Arial, sans-serif; 
+      background: linear-gradient(135deg, #6dd5ed, #2193b0); 
+      color: #fff; 
+      margin: 0; 
+      padding: 20px; 
+  }
+  .container { 
+      max-width: 700px; 
+      margin: auto; 
+      padding: 20px; 
+      background: rgba(0,0,0,0.6); 
+      border-radius: 20px; 
+  }
+  h1 { text-align: center; margin-bottom: 20px; }
+
+  label { display: block; margin: 8px 0 5px; }
+  input, select, textarea { 
+      width: 100%; 
+      padding: 10px; 
+      border: none; 
+      border-radius: 8px; 
+      margin-bottom: 15px; 
+  }
+
+  button { 
+      padding: 12px 20px; 
+      width: 100%; 
+      border: none; 
+      border-radius: 10px; 
+      background: #ffb400; 
+      color: #000; 
+      font-size: 16px; 
+      cursor: pointer; 
+      transition: 0.3s; 
+  }
+  button:hover { background: #ffd46b; }
+
+  .result { 
+      margin-top: 20px; 
+      padding: 15px; 
+      background: rgba(255,255,255,0.2); 
+      border-radius: 12px; 
+  }
+
+  /* Coin Popup */
+  #coinPopup {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #22c55e;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      padding: 12px 25px;
+      border-radius: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s, transform 0.5s;
+      z-index: 1000;
+  }
+
+  /* Top Bar */
+  #topBar {
+      position: fixed;
+      top: 0; 
+      left: 0; 
+      right: 0;
+      height: 50px;
+      background: rgba(0,0,0,0.7);
+      font-size: 18px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1001;
+  }
+
+</style>
+</head>
+
+<body>
+
+
+
+<div id="topBar">
+  <span>💰 Balance: <span id="balanceDisplay">0</span></span>
+  <span>🔥 Streak: <span id="streakDisplay">0</span></span>
+</div>
+<button onclick="window.location.href='index.html'"
+  style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3000;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ff5ac0, #ffea00);
+    color: black;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    box-sizing: content-box !important;
+  ">
+  🏠 Home
+</button>
+
+
+
+<div class="container" style="padding-top: 70px;">
+<h1>Daily Goals Logger</h1>
+
+<label>Date</label>
+<input type="text" id="date" readonly>
+
+<label>Daily Goal Completed?</label>
+<select id="goal">
+  <option value="yes">✅ Yes</option>
+  <option value="no">❌ No</option>
+</select>
+
+<label>Total Questions Solved Today</label>
+<input type="number" id="totalQ" min="0">
+
+<label>Productivity Notes</label>
+<textarea id="productivity" placeholder="e.g. matrices oneshot done, test solved..."></textarea>
+
+<button id="saveEntry">Save Entry</button>
+
+<div class="result" id="result"></div>
+</div>
+
+<div id="coinPopup">+0 coins</div>
+<audio id="coinSound" src="coin.mp3" preload="auto"></audio>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyATCUjWe1bbp2yOiZwOzBATrHfU2CE7rPY",
+  authDomain: "shushant-3b425.firebaseapp.com",
+  projectId: "shushant-3b425",
+  storageBucket: "shushant-3b425.firebasestorage.app",
+  messagingSenderId: "770199015415",
+  appId: "1:770199015415:web:bef917e226d613a469e8f2",
+  measurementId: "G-C989SR0F8V"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const dateEl = document.getElementById("date");
+  dateEl.value = new Date().toISOString().split("T")[0];
+
+  const resultEl = document.getElementById("result");
+  const coinPopup = document.getElementById("coinPopup");
+  const coinSound = document.getElementById("coinSound");
+
+  // Live Topbar Updates
+  const userRef = ref(db, "users/aditya");
+  onValue(userRef, snap => {
+    let v = snap.val() || {};
+    document.getElementById("balanceDisplay").textContent = v.balance || 0;
+    document.getElementById("streakDisplay").textContent = v.streak || 0;
+  });
+
+  function showCoinPopup(coins) {
+      coinPopup.textContent = `+${coins} coins`;
+      coinPopup.style.opacity = "1";
+      coinPopup.style.transform = "translateX(-50%) translateY(-20px)";
+      coinSound.play();
+
+      setTimeout(() => {
+          coinPopup.style.opacity = "0";
+          coinPopup.style.transform = "translateX(-50%) translateY(0)";
+      }, 3000);
+  }
+
+  document.getElementById("saveEntry").addEventListener("click", () => {
+
+      let totalQ = parseInt(document.getElementById("totalQ").value) || 0;
+      let productivity = document.getElementById("productivity").value.toLowerCase();
+      let goal = document.getElementById("goal").value;
+
+      let coins = 0;
+
+      // Question coins
+      if (totalQ <= 60) coins += totalQ * 10;
+      else coins += (60 * 2) + ((totalQ - 60) * 15);
+
+      // Productivity bonuses
+      if (productivity.includes("oneshot")) coins += 500;
+      else if (productivity.includes("test")) coins += 500;
+      else if (productivity.includes("ipe")) coins += 500;
+      else if (productivity.includes("ncert")) coins += 500;
+      else if (productivity.includes("revision")) coins += 500;
+      else if (productivity.includes("reading")) coins += 500;
+      else if (productivity.includes("concept")) coins += 500;
+      else if (productivity.includes("formula sheet")) coins += 500;
+
+      // Daily goal
+      let streakAdd = 0;
+      if (goal === "yes") { 
+          coins += 100; 
+          streakAdd = 1;
+      }
+
+      // Firebase Update
+      onValue(userRef, snap => {
+          let val = snap.val() || {};
+          let newBalance = (val.balance || 0) + coins;
+          let newStreak = (val.streak || 0) + streakAdd;
+          update(userRef, { balance: newBalance, streak: newStreak });
+      }, { onlyOnce: true });
+
+      // UI Result
+      resultEl.innerHTML = `
+        <h3>Entry Saved ✅</h3>
+        <p><b>Date:</b> ${dateEl.value}</p>
+        <p><b>Total Questions:</b> ${totalQ}</p>
+        <p><b>Productivity:</b> ${productivity}</p>
+        <p><b>Daily Goal:</b> ${goal} (${streakAdd ? "+1 Streak" : "No Streak"})</p>
+        <h3>🎟️ Coins Earned: ${coins}</h3>
+      `;
+
+      showCoinPopup(coins);
+  });
+</script>
+
+</body>
+</html>
