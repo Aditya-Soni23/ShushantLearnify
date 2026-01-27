@@ -2,7 +2,7 @@
     "name": "Learnify Study Tracker",
     "short_name": "Learnify",
     "description": "Track your study sessions, stay focused, and spend your earned coins.",
-    "start_url": "/index.html",
+    "start_url": "https://aditya-soni23.github.io/ShushantLearnify/",
     "display": "standalone",
     "background_color": "#F0F4F8",
     "theme_color": "#2D5AFE",
