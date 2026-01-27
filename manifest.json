@@ -1,0 +1,30 @@
+{
+    "name": "Learnify Study Tracker",
+    "short_name": "Learnify",
+    "description": "Track your study sessions, stay focused, and spend your earned coins.",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#F0F4F8",
+    "theme_color": "#2D5AFE",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "logoicon.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "logoicon.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "logoicon.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      }
+    ]
+  }
