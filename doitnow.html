@@ -199,8 +199,9 @@
       let coins = 0;
 
       // Question coins
-      if (totalQ <= 60) coins += totalQ * 10;
-      else coins += (60 * 2) + ((totalQ - 60) * 15);
+// Question coins  
+coins += totalQ * 15;
+
 
       // Productivity bonuses
       if (productivity.includes("oneshot")) coins += 500;
